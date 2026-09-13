@@ -1,0 +1,17 @@
+[project]
+name = "rungs"
+version = "1.0.0"
+description = "File-based tickets for a crew of agents of different skill levels"
+requires-python = ">=3.9"
+dependencies = []
+license = { text = "MIT" }
+
+[project.scripts]
+rungs = "rungs.cli:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

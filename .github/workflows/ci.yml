@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Unit tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Launcher and help
+        run: |
+          python3 bin/rungs --version
+          python3 bin/rungs --help
+      - name: Deploy into a temporary project
+        run: |
+          tmp="$(mktemp -d)"
+          mkdir -p "$tmp/project" "$tmp/bin"
+          git -C "$tmp/project" init -q
+          ./deploy.sh --into "$tmp/project" --bin "$tmp/bin" \
+            --agent claude.fable.001:xhigh:director \
+            --agent claude.opus.001:medium \
+            --agent claude.opus.reviewer:high:reviewer
+          "$tmp/bin/rungs" -C "$tmp/project" doctor
+          "$tmp/bin/rungs" -C "$tmp/project" agents
