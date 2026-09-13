@@ -1,6 +1,6 @@
 [project]
 name = "rungs"
-version = "1.0.0"
+version = "1.0.1"
 description = "File-based tickets for a crew of agents of different skill levels"
 requires-python = ">=3.9"
 dependencies = []

@@ -8,7 +8,6 @@ the part above it is regenerated.
 
 from __future__ import annotations
 
-import os
 import re
 from pathlib import Path
 from typing import List, Optional, Tuple
@@ -40,32 +39,8 @@ _ROLE_NOTE = {
 
 
 # --------------------------------------------------------------------------
-# Help rendering
+# Command table
 # --------------------------------------------------------------------------
-
-
-def _plain_help(parser) -> str:
-    """`parser.format_help()` with no ANSI escapes and a stable width, so the
-    generated file is the same on every terminal."""
-    keys = ("NO_COLOR", "TERM", "COLUMNS", "CLICOLOR", "CLICOLOR_FORCE", "FORCE_COLOR")
-    saved = {key: os.environ.get(key) for key in keys}
-    os.environ["NO_COLOR"] = "1"
-    os.environ["TERM"] = "dumb"
-    os.environ["COLUMNS"] = "100"
-    os.environ["CLICOLOR"] = "0"
-    os.environ.pop("CLICOLOR_FORCE", None)
-    os.environ.pop("FORCE_COLOR", None)
-    try:
-        text = parser.format_help()
-    except Exception as exc:  # pragma: no cover - argparse should always format
-        text = "(could not render help: {0})\n".format(exc)
-    finally:
-        for key, value in saved.items():
-            if value is None:
-                os.environ.pop(key, None)
-            else:
-                os.environ[key] = value
-    return _ANSI_RE.sub("", text).rstrip() + "\n"
 
 
 def _subparsers(ctx) -> List[Tuple[str, object]]:
@@ -79,6 +54,16 @@ def _subparsers(ctx) -> List[Tuple[str, object]]:
         canonical = parser.get_default("command_name") or name
         result.append((str(canonical), parser))
     return result
+
+
+def _command_table(ctx) -> List[str]:
+    """One row per command: the name and its one-line help. The full flags
+    live in `rungs <command> --help`, so the guide stays short."""
+    lines = ["| Command | What it does |", "|---|---|"]
+    for name, parser in _subparsers(ctx):
+        summary = _ANSI_RE.sub("", str(parser.get_default("command_help") or "")).strip()
+        lines.append("| `{0}` | {1} |".format(name, summary))
+    return lines
 
 
 # --------------------------------------------------------------------------
@@ -449,18 +434,15 @@ def render_agents_md(roster: Roster, ctx) -> str:
 
     lines.append("## Command reference")
     lines.append("")
-    if ctx is not None and getattr(ctx, "parser", None) is not None:
-        lines.append("```")
-        lines.append(_plain_help(ctx.parser).rstrip())
-        lines.append("```")
+    if ctx is not None and getattr(ctx, "subparsers", None):
+        lines += [
+            "Run `rungs <command> --help` for the flags and details before first using a command;",
+            "the table below is only for finding the right one. Most commands take `--json` for",
+            "machine-readable output and `--agent <you>` to say who is acting.",
+            "",
+        ]
+        lines += _command_table(ctx)
         lines.append("")
-        for name, parser in _subparsers(ctx):
-            lines.append("### rungs " + name)
-            lines.append("")
-            lines.append("```")
-            lines.append(_plain_help(parser).rstrip())
-            lines.append("```")
-            lines.append("")
     else:  # pragma: no cover - only when rendered outside the CLI
         lines.append("(no command parser available)")
         lines.append("")

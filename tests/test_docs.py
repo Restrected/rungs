@@ -42,17 +42,18 @@ class DocsTest(RungsTestCase):
         self.assertIn("24 hours", guide)
         self.assertIn("wrote", out)
 
-    def test_command_reference_is_rendered_and_has_no_escape_codes(self):
+    def test_command_reference_is_a_table_with_no_escape_codes(self):
         self.init_store()
         self.run_cli("docs")
         guide = self.read(".rungs/AGENTS.md")
         self.assertNotRegex(guide, ANSI.pattern)
-        self.assertIn("### rungs intake", guide)
-        self.assertIn("### rungs import-arbite", guide)
-        self.assertIn("### rungs init", guide)
-        self.assertIn("### rungs deploy", guide)
-        self.assertIn("### rungs docs", guide)
-        self.assertIn("usage: rungs intake", guide)
+        # One table row per command, each with its one-line help ...
+        for command in ("intake", "import-arbite", "init", "deploy", "docs", "next", "submit"):
+            self.assertRegex(guide, r"\| `%s` \| \S" % re.escape(command))
+        # ... and no embedded per-command help pages: the guide stays short and
+        # points at `rungs <command> --help` instead.
+        self.assertNotIn("usage: rungs intake", guide)
+        self.assertIn("rungs <command> --help", guide)
 
     def test_agent_files_are_written_with_the_marker(self):
         self.init_store()

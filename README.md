@@ -156,9 +156,10 @@ uses it.
 | Finish work | `submit`, `review`, `close`, `reopen` |
 | Keep it honest | `set`, `depend`, `verify`, `doctor` |
 
-Every command has `--help`; the generated `.rungs/AGENTS.md` carries the full
-reference for the installed version, and [docs/COMMANDS.md](docs/COMMANDS.md)
-carries it for this release. Exit codes: `0` ok, `1` error, `2` nothing
+Every command has `--help`; the generated `.rungs/AGENTS.md` carries a
+one-line-per-command table for the installed version (kept short so agents
+can read it cheaply every session), and [docs/COMMANDS.md](docs/COMMANDS.md)
+carries the full reference for this release. Exit codes: `0` ok, `1` error, `2` nothing
 matched, `3` problems found (doctor, verify), `4` refused by policy.
 
 ## Integrating an application

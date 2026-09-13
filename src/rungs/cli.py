@@ -161,7 +161,7 @@ class Context:
             name, help=help, description=description or help, aliases=aliases or [],
             formatter_class=argparse.RawDescriptionHelpFormatter, **kwargs
         )
-        parser.set_defaults(handler=handler, command_name=name)
+        parser.set_defaults(handler=handler, command_name=name, command_help=help)
         return parser
 
     @staticmethod

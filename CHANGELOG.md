@@ -4,6 +4,15 @@ All notable changes to rungs are recorded here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] - 2026-09-13
+
+### Changed
+
+- The generated `.rungs/AGENTS.md` now carries a one-line-per-command table
+  instead of every command's full `--help` page, cutting the guide agents
+  read each session to roughly a third of its size. The full reference
+  stays available through `rungs <command> --help` and `docs/COMMANDS.md`.
+
 ## [1.0.0] - 2026-09-13
 
 First release. Designed as the successor to arbite for delegating work to a
